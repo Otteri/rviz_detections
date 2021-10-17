@@ -1,6 +1,17 @@
 <?xml version="1.0"?>
 
 <launch>
+    <arg name="input_topic"                default="/pointpillars/detections"/>
+    <arg name="output_topic"               default="/rviz/detections/bbox"/>
+    <arg name="marker_lifetime"            default="0.5"/>
+    <arg name="run_rate_hz"                default="100"/>
+    <arg name="debug"                      default="false"/>
+
     <node name="rviz_detections" type="rviz_detections" pkg="rviz_detections" cwd="node" output="screen">
+        <param name="input_topic"            value="$(arg input_topic)"/>
+        <param name="output_topic"           value="$(arg output_topic)"/>
+        <param name="marker_lifetime"        value="$(arg marker_lifetime)"/>
+        <param name="run_rate_hz"            value="$(arg run_rate_hz)"/>
+        <param name="debug"                  value="$(arg debug)"/>
     </node>
 </launch>

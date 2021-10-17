@@ -9,15 +9,14 @@
 class VisualizerNode
 {
 public:
-
-    VisualizerNode(const ros::NodeHandle& nh);
-
-    void VizBboxCallback(const rviz_detections::Detection3DArrayConstPtr& msg);
-
-    void createBboxWithCenterPoint(std::vector<geometry_msgs::Point>& points, const geometry_msgs::Point size);
+    VisualizerNode(ros::NodeHandle& nh);
 
 private:
+    void VizBboxCallback(const rviz_detections::Detection3DArrayConstPtr& msg);
+    void createBboxWithCenterPoint(std::vector<geometry_msgs::Point>& points, const geometry_msgs::Point size);
+
     ros::NodeHandle nh_;
-    ros::Subscriber sub; // input data
-    ros::Publisher arr_pub; // ouput
+    ros::Subscriber sub_; // input data
+    ros::Publisher pub_;  // ouput data
+    double marker_lifetime_;
 };
