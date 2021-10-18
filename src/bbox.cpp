@@ -2,9 +2,11 @@
 
 VisualizerNode::VisualizerNode(ros::NodeHandle& nh)
 {
+    double hz;
     nh.getParam("color", rgba_); // array
-    nh.param<double>("input_topic", scale_, 0.05);
-    nh.param<double>("input_topic", marker_lifetime_, 0.5);
+    nh.getParam("scale", scale_);
+    nh.getParam("run_rate_hz", hz);
+    nh.param<double>("marker_lifetime", marker_lifetime_, 1.0/hz);
 
     std::string input_topic, output_topic;
     nh.param<std::string>("input_topic", input_topic, "/lidar/detections");
