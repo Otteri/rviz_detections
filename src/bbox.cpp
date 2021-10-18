@@ -2,8 +2,10 @@
 
 VisualizerNode::VisualizerNode(ros::NodeHandle& nh)
 {
-    nh.param<double>("marker_lifetime", marker_lifetime_, 0.5);
-    
+    nh.getParam("color", rgba_); // array
+    nh.param<double>("input_topic", scale_, 0.05);
+    nh.param<double>("input_topic", marker_lifetime_, 0.5);
+
     std::string input_topic, output_topic;
     nh.param<std::string>("input_topic", input_topic, "/lidar/detections");
     nh.param<std::string>("output_topic", output_topic, "/rviz/detections/bbox");
@@ -155,11 +157,11 @@ void VisualizerNode::VizBboxCallback(const rviz_detections::Detection3DArrayCons
         line_strip.pose = detection.pose;
         line_strip.lifetime = ros::Duration(marker_lifetime_);
         line_strip.type = visualization_msgs::Marker::LINE_LIST;
-        line_strip.scale.x = 0.05;
-        line_strip.color.r = 0.1;
-        line_strip.color.g = 1.0;
-        line_strip.color.b = 0.1;
-        line_strip.color.a = 1.0;
+        line_strip.scale.x = scale_;
+        line_strip.color.r = rgba_[0];
+        line_strip.color.g = rgba_[1];
+        line_strip.color.b = rgba_[2];
+        line_strip.color.a = rgba_[3];
 
         createBboxWithCenterPoint(line_strip.points, detection.size);
 

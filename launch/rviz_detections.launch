@@ -5,7 +5,7 @@
     <arg name="output_topic"               default="/rviz/detections/bbox"/>
     <arg name="marker_lifetime"            default="0.5"/>
     <arg name="run_rate_hz"                default="100"/>
-    <arg name="debug"                      default="false"/>
+    <arg name="debug"                      default="true"/>
 
     <node name="rviz_detections" type="rviz_detections" pkg="rviz_detections" cwd="node" output="screen">
         <param name="input_topic"            value="$(arg input_topic)"/>
@@ -13,5 +13,7 @@
         <param name="marker_lifetime"        value="$(arg marker_lifetime)"/>
         <param name="run_rate_hz"            value="$(arg run_rate_hz)"/>
         <param name="debug"                  value="$(arg debug)"/>
+        <param name="scale"                  value="0.05"/>
+        <rosparam param="color">[0.1, 1.0, 0.1, 1.0]</rosparam>
     </node>
 </launch>
