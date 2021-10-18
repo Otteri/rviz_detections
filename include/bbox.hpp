@@ -16,7 +16,9 @@ private:
     void createBboxWithCenterPoint(std::vector<geometry_msgs::Point>& points, const geometry_msgs::Point size);
 
     ros::NodeHandle nh_;
-    ros::Subscriber sub_; // input data
-    ros::Publisher pub_;  // ouput data
-    double marker_lifetime_;
+    ros::Subscriber sub_;      // input data
+    ros::Publisher pub_;       // ouput data
+    double marker_lifetime_;   // how long marker stays visible (s)
+    std::vector<double> rgba_; // color, rgba
+    double scale_;             // line thickness
 };
