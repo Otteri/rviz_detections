@@ -8,7 +8,6 @@ set(${PROJECT_NAME}_CATKIN_DEPS
   std_msgs
   geometry_msgs
   message_generation
-  visualization_msgs
 )
 
 ## Find dependencies
@@ -27,10 +26,7 @@ generate_messages(
 )
 
 catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS ${${PROJECT_NAME}_CATKIN_DEPS}
-  DEPENDS
+  CATKIN_DEPENDS message_runtime
 )
 
 include_directories(
