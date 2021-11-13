@@ -127,8 +127,8 @@ void VisualizerNode::VizBboxCallback(const rviz_detections::Detection3DArrayCons
         visualization_msgs::Marker confidence_marker = createMarker(id, msg->header, detection);
         confidence_marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
         confidence_marker.ns = "confidences";
-        confidence_marker.pose.position.z = detection.pose.position.z - confidence_marker.scale.z; // show confidence text under class text
         confidence_marker.scale.z = 0.5f; // text scale
+        confidence_marker.pose.position.z = detection.pose.position.z - confidence_marker.scale.z; // show confidence text under class text
         confidence_marker.text = floatToString(detection.category_confidences[0]); // assign the first confidence
         confidence_array.markers.push_back(confidence_marker);
 
