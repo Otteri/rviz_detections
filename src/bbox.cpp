@@ -14,9 +14,21 @@ VisualizerNode::VisualizerNode(ros::NodeHandle& nh)
 
     size_t queue_size = 1u;
     sub_ = nh_.subscribe(input_topic, queue_size, &VisualizerNode::VizBboxCallback, this); 
-    pub_ = nh_.advertise<visualization_msgs::MarkerArray>(output_topic, queue_size);
+
+    bbox_pub_ = nh_.advertise<visualization_msgs::MarkerArray>(output_topic, queue_size);
+    class_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("/rviz/detections/classes", queue_size);
+    confidence_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("/rviz/detections/confidences", queue_size);
+
 
     ROS_DEBUG_STREAM("VisualizerNode has been initialized and is listening '" << input_topic << "'");
+}
+
+
+std::string floatToString(float value)
+{
+    std::stringstream stream;
+    stream << std::fixed << std::setprecision(2) << value;
+    return stream.str();
 }
 
 void VisualizerNode::createBboxWithCenterPoint(std::vector<geometry_msgs::Point>& points, const geometry_msgs::Point size)
@@ -141,35 +153,68 @@ void VisualizerNode::createBboxWithCenterPoint(std::vector<geometry_msgs::Point>
     points.push_back(p);
 }
 
+// Creates a new marker and sets common fields, so that marker are uniform
+visualization_msgs::Marker VisualizerNode::createMarker(const size_t id, const std_msgs::Header header, const rviz_detections::Detection3D& detection)
+{
+    visualization_msgs::Marker marker;
+    marker.header.frame_id = header.frame_id;
+    marker.header.stamp = header.stamp;
+    marker.id = id;
+    marker.pose = detection.pose;
+    marker.color.r = rgba_[0];
+    marker.color.g = rgba_[1];
+    marker.color.b = rgba_[2];
+    marker.color.a = rgba_[3];
+    marker.lifetime = ros::Duration(marker_lifetime_);
+    return marker;
+}
+
+// vizCallback
 void VisualizerNode::VizBboxCallback(const rviz_detections::Detection3DArrayConstPtr& msg)
 {
     ROS_DEBUG_STREAM("Recieved a detection");
 
-    static size_t id;
+    static size_t id; // keep track of id, so we can assign same id for bbox, class and confidence
 
-    visualization_msgs::MarkerArray marker_array;
+    visualization_msgs::MarkerArray bbox_array;
+    visualization_msgs::MarkerArray class_array;
+    visualization_msgs::MarkerArray confidence_array;
 
     for (const auto& detection : msg->detections)
     {
-        visualization_msgs::Marker line_strip;
-        line_strip.header.frame_id = msg->header.frame_id;
-        line_strip.header.stamp = msg->header.stamp;
-        line_strip.id = id++;
-        line_strip.ns = "lines";
-        line_strip.pose = detection.pose;
-        line_strip.lifetime = ros::Duration(marker_lifetime_);
+        // Bbox
+        visualization_msgs::Marker line_strip = createMarker(id, msg->header, detection);
         line_strip.type = visualization_msgs::Marker::LINE_LIST;
-        line_strip.scale.x = scale_;
-        line_strip.color.r = rgba_[0];
-        line_strip.color.g = rgba_[1];
-        line_strip.color.b = rgba_[2];
-        line_strip.color.a = rgba_[3];
-
+        line_strip.scale.x = scale_; // line thickness
+        line_strip.ns = "bboxes";
         createBboxWithCenterPoint(line_strip.points, detection.size);
+        bbox_array.markers.push_back(line_strip);
 
-        marker_array.markers.push_back(line_strip);
+        // Class marker
+        visualization_msgs::Marker class_marker = createMarker(id, msg->header, detection);
+        class_marker.scale.z = 0.5f; // text scale
+        class_marker.ns = "classes";
+        class_marker.action = visualization_msgs::Marker::ADD;
+        class_marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+        class_marker.text = detection.categories[0]; // assign the first class
+        class_array.markers.push_back(class_marker);
+
+        // Confidence marker
+        visualization_msgs::Marker confidence_marker = createMarker(id, msg->header, detection);
+        confidence_marker.scale.z = 0.5f; // text scale
+        confidence_marker.pose.position.z = detection.pose.position.z - confidence_marker.scale.z; // show confidence text under class text
+        confidence_marker.ns = "confidences";
+        confidence_marker.action = visualization_msgs::Marker::ADD;
+        confidence_marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+        confidence_marker.text = floatToString(detection.category_confidences[0]); // assign the first confidence
+        confidence_array.markers.push_back(confidence_marker);
+
+        id++;
     }
 
-    pub_.publish(marker_array);
+    bbox_pub_.publish(bbox_array);
+    class_pub_.publish(class_array);
+    confidence_pub_.publish(confidence_array);
+
     ROS_DEBUG_STREAM(">>> published a message");
 }
