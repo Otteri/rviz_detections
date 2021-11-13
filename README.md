@@ -3,6 +3,7 @@ ROS code for publishing data in visualizable format. Targeted for ROS melodic.
 Has been containerized, so this package should be easy to utilize. Build and
 launch commands have been specified in the `Makefile`.
 
+![Bbox vizualization](./images/car.png)
 
 ## Usage
 Use detection messages, specified by this pacakge, in your project. Also, update the `launch/rviz_detections.launch` to suit your needs.
